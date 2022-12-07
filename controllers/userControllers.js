@@ -86,7 +86,29 @@ function login(req, res, next) {
     });
 }
 
+function deleteUser(req, res, next) {
+  User.findById(req.params._id)
+    .then((user) => {
+      if (!user) {
+        throw new NotFoundError('Запрашиваемая запись не найдена');
+      }
+
+      return user.remove()
+        .then(() => {
+          res.send(user);
+        });
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new BadRequestError('Некорректный id пользователя'));
+        return;
+      }
+      next(err);
+    });
+}
+
 module.exports = {
   createUser,
-  login
+  login,
+  deleteUser
 };
